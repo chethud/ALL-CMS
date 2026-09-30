@@ -19,7 +19,7 @@ import {
   type TestimonialContent,
 } from "@/lib/content";
 import { storagePathFromPublicUrl } from "@/lib/media";
-import { SITE_COOKIE, SITE_COOKIE_OPTIONS, cleanDomain, isDomain, isSiteId } from "@/lib/site";
+import { SITE_COOKIE, SITE_COOKIE_OPTIONS, cleanDomain, isDomain, isSiteId, siteSections, type StudioSection } from "@/lib/site";
 
 export type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
 
@@ -102,8 +102,9 @@ export async function switchSite(siteId: string, pathname: string) {
   if (!data) return { ok: false, error: "That site is not in the database." };
   const cookieStore = await cookies();
   cookieStore.set(SITE_COOKIE, siteId, SITE_COOKIE_OPTIONS);
-  const section = pathname.split("/").filter(Boolean)[0];
-  const dest = section && ["layouts", "insights", "testimonials", "homepage"].includes(section) ? `/${section}` : "/";
+  const section = pathname.split("/").filter(Boolean)[0] as StudioSection;
+  const allowed = siteSections(siteId);
+  const dest = allowed.includes(section) ? `/${section}` : "/";
   redirect(dest);
 }
 

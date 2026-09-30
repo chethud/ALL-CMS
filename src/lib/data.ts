@@ -2,7 +2,7 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { SITE_COOKIE, pickSite, type Site } from "@/lib/site";
+import { SITE_COOKIE, pickSite, siteSections, type Site, type StudioSection } from "@/lib/site";
 import {
   homepageFromContent,
   insightFromContent,
@@ -38,6 +38,12 @@ export async function requireEditingSite() {
   if (context.error) throw new Error(context.error);
   if (!context.site) redirect("/");
   return context.site;
+}
+
+export async function requireSection(section: StudioSection) {
+  const site = await requireEditingSite();
+  if (!siteSections(site.id).includes(section)) redirect("/insights");
+  return site;
 }
 
 async function rows<T>(table: "projects" | "insights" | "testimonials", siteId: string, map: (content: unknown) => T) {

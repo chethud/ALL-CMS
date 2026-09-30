@@ -14,7 +14,7 @@ export default async function CmsLayout({ children }: { children: React.ReactNod
   const context = await currentSiteContext();
 
   return (
-    <Shell sites={context.sites} site={context.site} dbError={context.error}>
+    <Shell site={context.site} dbError={context.error}>
       {children}
     </Shell>
   );

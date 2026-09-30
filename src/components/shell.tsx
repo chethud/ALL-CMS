@@ -2,31 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTransition } from "react";
-import { clearSelectedSite, signOut, switchSite } from "@/app/actions";
-import type { Site } from "@/lib/site";
+import { clearSelectedSite, signOut } from "@/app/actions";
+import { siteSections, type Site, type StudioSection } from "@/lib/site";
 
-const NAV = [
-  { href: "/layouts", label: "Layouts" },
-  { href: "/insights", label: "Insights" },
-  { href: "/testimonials", label: "Testimonials" },
-  { href: "/homepage", label: "Homepage" },
+const NAV: { href: `/${StudioSection}`; label: string; section: StudioSection }[] = [
+  { href: "/layouts", label: "Layouts", section: "layouts" },
+  { href: "/insights", label: "Insights", section: "insights" },
+  { href: "/testimonials", label: "Testimonials", section: "testimonials" },
+  { href: "/homepage", label: "Homepage", section: "homepage" },
 ];
 
 export function Shell({
-  sites,
   site,
   dbError,
   children,
 }: {
-  sites: Site[];
   site: Site | null;
   dbError: string | null;
   children: React.ReactNode;
 }) {
   return (
     <div className="min-h-screen">
-      <Header sites={sites} site={site} />
+      <Header site={site} />
       <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
         {dbError ? (
           <div className="card max-w-2xl">
@@ -45,7 +42,7 @@ export function Shell({
   );
 }
 
-function Header({ sites, site }: { sites: Site[]; site: Site | null }) {
+function Header({ site }: { site: Site | null }) {
   const pathname = usePathname();
 
   return (
@@ -67,7 +64,6 @@ function Header({ sites, site }: { sites: Site[]; site: Site | null }) {
             <span className="block text-base font-semibold">Content studio</span>
           </button>
         </form>
-        {sites.length > 0 ? <SiteSwitcher sites={sites} currentId={site?.id ?? ""} /> : null}
         <div className="ml-auto flex items-center gap-2 text-sm sm:gap-3">
           {site ? (
             <a className="text-[#D5E8F3] hover:text-white" href={`https://${site.domain}`} target="_blank" rel="noreferrer">
@@ -83,7 +79,7 @@ function Header({ sites, site }: { sites: Site[]; site: Site | null }) {
       </div>
       {site ? (
         <nav className="mx-auto flex w-full max-w-6xl gap-1 overflow-x-auto px-4 sm:px-6">
-          {NAV.map((item) => {
+          {NAV.filter((item) => siteSections(site.id).includes(item.section)).map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link
@@ -100,35 +96,5 @@ function Header({ sites, site }: { sites: Site[]; site: Site | null }) {
         </nav>
       ) : null}
     </header>
-  );
-}
-
-function SiteSwitcher({ sites, currentId }: { sites: Site[]; currentId: string }) {
-  const pathname = usePathname();
-  const [pending, startTransition] = useTransition();
-
-  return (
-    <label className="flex min-w-[220px] flex-1 items-center gap-2 sm:max-w-md">
-      <span className="sr-only">Site</span>
-      <select
-        className="h-10 w-full rounded-xl bg-white px-3 text-sm font-medium text-[#0B2341] outline-none"
-        value={currentId}
-        disabled={pending}
-        onChange={(event) => {
-          const siteId = event.target.value;
-          if (!siteId) return;
-          startTransition(async () => {
-            await switchSite(siteId, pathname === "/" ? "/" : pathname);
-          });
-        }}
-      >
-        <option value="">Select a company</option>
-        {sites.map((site) => (
-          <option key={site.id} value={site.id}>
-            {site.name} · {site.domain}
-          </option>
-        ))}
-      </select>
-    </label>
   );
 }

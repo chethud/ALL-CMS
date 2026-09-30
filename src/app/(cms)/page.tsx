@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AddSiteForm } from "@/components/add-site-form";
 import { ChooseSiteForm } from "@/components/choose-site-form";
 import { currentSiteContext, siteCounts } from "@/lib/data";
+import { siteSections } from "@/lib/site";
 
 export default async function HomePage() {
   const { site, sites, error } = await currentSiteContext();
@@ -13,11 +14,9 @@ export default async function HomePage() {
           <>
             <h1 className="text-2xl font-semibold text-[#0B2341]">Select a company</h1>
             <p className="mb-6 mt-2 text-sm leading-6 text-[#5C6B7A]">
-              Choose the website you want to edit first. Layouts, insights, testimonials, and homepage stay separate for each company.
+              Click a company logo to open that website.
             </p>
-            <div className="card">
-              <ChooseSiteForm sites={sites} />
-            </div>
+            <ChooseSiteForm sites={sites} />
             <details className="card mt-6">
               <summary className="cursor-pointer text-sm font-semibold text-[#0B2341]">Add another website</summary>
               <p className="mb-4 mt-2 text-sm leading-6 text-[#5C6B7A]">
@@ -43,27 +42,31 @@ export default async function HomePage() {
   }
 
   const counts = await siteCounts(site.id);
+  const sections = siteSections(site.id);
   const cards = [
-    { href: "/layouts", label: "Layouts", value: String(counts.projects), detail: "Projects, gallery, and videos" },
-    { href: "/insights", label: "Insights", value: String(counts.insights), detail: "Articles" },
-    { href: "/testimonials", label: "Testimonials", value: String(counts.testimonials), detail: "Reviews" },
+    { href: "/layouts", section: "layouts" as const, label: "Layouts", value: String(counts.projects), detail: "Projects, gallery, and videos" },
+    { href: "/insights", section: "insights" as const, label: "Insights", value: String(counts.insights), detail: "Articles" },
+    { href: "/testimonials", section: "testimonials" as const, label: "Testimonials", value: String(counts.testimonials), detail: "Reviews" },
     {
       href: "/homepage",
+      section: "homepage" as const,
       label: "Homepage",
       value: counts.homepage?.heroVideoId || "—",
       detail: counts.homepage
         ? `${counts.homepage.stats.years} years · ${counts.homepage.stats.layouts} layouts · ${counts.homepage.stats.customers} customers`
         : "Hero video and stats",
     },
-  ];
+  ].filter((card) => sections.includes(card.section));
+  const insightsOnly = sections.length === 1 && sections[0] === "insights";
 
   return (
     <div>
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#0077A8]">{site.domain}</p>
       <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[#0B2341]">{site.name}</h1>
       <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5C6B7A]">
-        Edits on the next screens are saved for this site only. Other websites use the same screens after they are added with their own
-        site id.
+        {insightsOnly
+          ? "Articles for this site are edited here."
+          : "Edits on the next screens are saved for this site only. Other websites can use a different set of screens."}
       </p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {cards.map((card) => (

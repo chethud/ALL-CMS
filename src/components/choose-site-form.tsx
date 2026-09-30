@@ -2,54 +2,61 @@
 
 import { useState, useTransition } from "react";
 import { switchSite } from "@/app/actions";
-import type { Site } from "@/lib/site";
+import { siteLogo, type Site } from "@/lib/site";
 
 export function ChooseSiteForm({ sites }: { sites: Site[] }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
-  const [siteId, setSiteId] = useState("");
+  const [openingId, setOpeningId] = useState("");
 
   return (
-    <form
-      className="grid gap-4"
-      onSubmit={(event) => {
-        event.preventDefault();
-        setError("");
-        if (!siteId) {
-          setError("Select a company first.");
-          return;
-        }
-        startTransition(async () => {
-          const result = await switchSite(siteId, "/");
-          if (result && !result.ok) setError(result.error);
-        });
-      }}
-    >
-      <label className="grid gap-1.5">
-        <span className="text-sm font-medium text-[#16324F]">Company</span>
-        <select
-          className="input"
-          value={siteId}
-          disabled={pending}
-          onChange={(event) => {
-            setSiteId(event.target.value);
-            setError("");
-          }}
-        >
-          <option value="">Select a company</option>
-          {sites.map((site) => (
-            <option key={site.id} value={site.id}>
-              {site.name} · {site.domain}
-            </option>
-          ))}
-        </select>
-      </label>
-      <div className="flex flex-wrap items-center gap-3">
-        <button className="btn btn-primary" type="submit" disabled={pending || !siteId}>
-          {pending ? "Opening…" : "Continue"}
-        </button>
-        {error ? <p className="text-sm text-[#9F2D2D]">{error}</p> : null}
-      </div>
-    </form>
+    <div className="grid max-w-md gap-3 sm:grid-cols-2">
+      {sites.map((site) => {
+        const logo = siteLogo(site.id);
+        const opening = pending && openingId === site.id;
+        return (
+          <button
+            key={site.id}
+            type="button"
+            disabled={pending}
+            className="card flex flex-col items-center gap-2 p-3 text-center transition hover:-translate-y-0.5 hover:border-[#00A9E8] disabled:cursor-wait disabled:opacity-70"
+            onClick={() => {
+              setError("");
+              setOpeningId(site.id);
+              startTransition(async () => {
+                const result = await switchSite(site.id, "/");
+                if (result && !result.ok) {
+                  setError(result.error);
+                  setOpeningId("");
+                }
+              });
+            }}
+          >
+            <span className="flex h-14 w-full items-center justify-center">
+              {logo ? (
+                <img
+                  src={logo.src}
+                  alt=""
+                  className={
+                    logo.round
+                      ? "h-12 w-12 rounded-full object-cover"
+                      : "max-h-12 w-full object-contain"
+                  }
+                />
+              ) : (
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0B2341] text-lg font-semibold text-white">
+                  {site.name.slice(0, 1).toUpperCase()}
+                </span>
+              )}
+            </span>
+            <span>
+              <span className="block text-sm font-semibold text-[#0B2341]">{site.name}</span>
+              <span className="mt-0.5 block text-[11px] leading-4 text-[#5C6B7A]">{opening ? "Opening…" : site.domain}</span>
+            </span>
+          </button>
+        );
+      })}
+      {error ? <p className="text-sm text-[#9F2D2D] sm:col-span-2">{error}</p> : null}
+    </div>
   );
 }
