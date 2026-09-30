@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .input {
+    @apply h-11 w-full rounded-xl border border-[#D5DEE6] bg-white px-3 text-sm text-[#102033] outline-none transition placeholder:text-[#8A97A3] focus:border-[#00A9E8] focus:ring-4 focus:ring-[#00A9E8]/15;
+  }
+
+  .textarea {
+    @apply min-h-28 w-full rounded-xl border border-[#D5DEE6] bg-white px-3 py-3 text-sm leading-6 text-[#102033] outline-none transition placeholder:text-[#8A97A3] focus:border-[#00A9E8] focus:ring-4 focus:ring-[#00A9E8]/15;
+  }
+
+  .btn {
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply bg-[#0B2341] text-white hover:bg-[#163A63];
+  }
+
+  .btn-secondary {
+    @apply border border-[#D5DEE6] bg-white text-[#0B2341] hover:bg-[#F4F7F8];
+  }
+
+  .btn-danger {
+    @apply border border-transparent text-[#9F2D2D] hover:bg-[#FDECEC];
+  }
+
+  .card {
+    @apply rounded-2xl border border-[#E4E9ED] bg-white p-5 shadow-card;
+  }
+
+  .chip {
+    @apply inline-flex cursor-pointer items-center rounded-full border border-[#D5DEE6] bg-white px-3 py-1.5 text-sm text-[#16324F];
+  }
+
+  .chip-on {
+    @apply border-[#0B2341] bg-[#0B2341] text-white;
+  }
+}
