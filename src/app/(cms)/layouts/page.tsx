@@ -8,21 +8,26 @@ import { resolveMediaUrl } from "@/lib/media";
 export default async function LayoutsPage() {
   const site = await requireEditingSite();
   const projects = await listProjects(site.id);
+  const newsletter = site.id === "safe-wheels-group";
 
   return (
     <div>
       <PageHeader
         eyebrow={site.name}
-        title="Layouts"
-        description="Projects for this site. Open one to change its gallery, starting video, and gallery videos."
+        title={newsletter ? "Newsletters" : "Layouts"}
+        description={
+          newsletter
+            ? "Window Seat issues. Each one has a name, a year, a PDF, and a cover."
+            : "Projects for this site. Open one to change its gallery, starting video, and gallery videos."
+        }
         action={
           <Link href="/layouts/new" className="btn btn-primary">
-            New layout
+            {newsletter ? "New newsletter" : "New layout"}
           </Link>
         }
       />
       {projects.length === 0 ? (
-        <EmptyState>No layouts for this site yet.</EmptyState>
+        <EmptyState>{newsletter ? "No newsletters for this site yet." : "No layouts for this site yet."}</EmptyState>
       ) : (
         <ul className="grid gap-3">
           {projects.map((project) => (
@@ -41,18 +46,20 @@ export default async function LayoutsPage() {
                 <Link href={`/layouts/${project.id}`} className="font-semibold text-[#0B2341] hover:text-[#0077A8]">
                   {project.name}
                 </Link>
-                <p className="truncate text-sm text-[#5C6B7A]">{project.location.area || project.slug}</p>
-                <p className="mt-1 text-xs uppercase tracking-wide text-[#5C6B7A]">
-                  {project.mapStatus}
-                  {" · "}
-                  {project.showOnLayouts ? "On layouts" : "Hidden from layouts"}
-                  {project.featured ? " · Featured" : ""}
-                </p>
+                <p className="truncate text-sm text-[#5C6B7A]">{newsletter ? project.tagline || project.location.area : project.location.area || project.slug}</p>
+                {newsletter ? null : (
+                  <p className="mt-1 text-xs uppercase tracking-wide text-[#5C6B7A]">
+                    {project.mapStatus}
+                    {" · "}
+                    {project.showOnLayouts ? "On layouts" : "Hidden from layouts"}
+                    {project.featured ? " · Featured" : ""}
+                  </p>
+                )}
               </div>
               <Link href={`/layouts/${project.id}`} className="btn btn-secondary">
                 Edit
               </Link>
-              <DeleteButton label="layout" href="/layouts" action={deleteProject.bind(null, site.id, project.id)} />
+              <DeleteButton label={newsletter ? "newsletter" : "layout"} href="/layouts" action={deleteProject.bind(null, site.id, project.id)} />
             </li>
           ))}
         </ul>

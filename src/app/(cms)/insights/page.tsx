@@ -7,21 +7,22 @@ import { listInsights, requireEditingSite } from "@/lib/data";
 export default async function InsightsPage() {
   const site = await requireEditingSite();
   const insights = await listInsights(site.id);
+  const blog = site.id === "safe-wheels-group";
 
   return (
     <div>
       <PageHeader
         eyebrow={site.name}
-        title="Insights"
-        description="Articles for this site."
+        title={blog ? "Blog" : "Insights"}
+        description={blog ? "Articles shown on the Safe Wheels blog." : "Articles for this site."}
         action={
           <Link href="/insights/new" className="btn btn-primary">
-            New insight
+            {blog ? "New article" : "New insight"}
           </Link>
         }
       />
       {insights.length === 0 ? (
-        <EmptyState>No insights for this site yet.</EmptyState>
+        <EmptyState>{blog ? "No articles for this site yet." : "No insights for this site yet."}</EmptyState>
       ) : (
         <ul className="grid gap-3">
           {insights.map((insight) => (
@@ -37,7 +38,7 @@ export default async function InsightsPage() {
               <Link href={`/insights/${insight.id}`} className="btn btn-secondary">
                 Edit
               </Link>
-              <DeleteButton label="insight" href="/insights" action={deleteInsight.bind(null, site.id, insight.id)} />
+              <DeleteButton label={blog ? "article" : "insight"} href="/insights" action={deleteInsight.bind(null, site.id, insight.id)} />
             </li>
           ))}
         </ul>

@@ -56,8 +56,20 @@ export default async function HomePage() {
         ? `${counts.homepage.stats.years} years · ${counts.homepage.stats.layouts} layouts · ${counts.homepage.stats.customers} customers`
         : "Hero video and stats",
     },
-  ].filter((card) => sections.includes(card.section));
+  ]
+    .map((card) => {
+      if (site.id !== "safe-wheels-group") return card;
+      if (card.section === "layouts") {
+        return { ...card, label: "Newsletters", detail: "Window Seat issues (name, PDF, cover)" };
+      }
+      if (card.section === "insights") {
+        return { ...card, label: "Blog", detail: "Group news articles" };
+      }
+      return card;
+    })
+    .filter((card) => sections.includes(card.section));
   const insightsOnly = sections.length === 1 && sections[0] === "insights";
+  const newsAndBlog = site.id === "safe-wheels-group";
 
   return (
     <div>
@@ -66,7 +78,9 @@ export default async function HomePage() {
       <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5C6B7A]">
         {insightsOnly
           ? "Articles for this site are edited here."
-          : "Edits on the next screens are saved for this site only. Other websites can use a different set of screens."}
+          : newsAndBlog
+            ? "Blog posts use Insights. Newsletters use Layouts — set the name, upload the PDF, and set the cover image."
+            : "Edits on the next screens are saved for this site only. Other websites can use a different set of screens."}
       </p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {cards.map((card) => (

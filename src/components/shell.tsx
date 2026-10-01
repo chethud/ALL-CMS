@@ -12,6 +12,14 @@ const NAV: { href: `/${StudioSection}`; label: string; section: StudioSection }[
   { href: "/homepage", label: "Homepage", section: "homepage" },
 ];
 
+function navLabel(siteId: string, section: StudioSection, fallback: string) {
+  if (siteId === "safe-wheels-group") {
+    if (section === "layouts") return "Newsletters";
+    if (section === "insights") return "Blog";
+  }
+  return fallback;
+}
+
 export function Shell({
   site,
   dbError,
@@ -89,7 +97,7 @@ function Header({ site }: { site: Site | null }) {
                   active ? "border-[#00A9E8] text-white" : "border-transparent text-[#B7C9D6] hover:text-white"
                 }`}
               >
-                {item.label}
+                {navLabel(site.id, item.section, item.label)}
               </Link>
             );
           })}

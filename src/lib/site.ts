@@ -24,6 +24,8 @@ const ALL_SECTIONS: StudioSection[] = ["layouts", "insights", "testimonials", "h
 
 export function siteSections(siteId: string): StudioSection[] {
   if (siteId === "bs-prashanth") return ["insights"];
+  // Layouts = Window Seat newsletters (brochure URL + cover image); Insights = blog.
+  if (siteId === "safe-wheels-group") return ["layouts", "insights"];
   return ALL_SECTIONS;
 }
 
@@ -47,6 +49,7 @@ export function isDomain(value: string) {
 const SITE_LOGOS: Record<string, { src: string; round?: boolean }> = {
   "alliance-square": { src: "/logos/alliance-square.png" },
   "bs-prashanth": { src: "/logos/bs-prashanth.png", round: true },
+  "safe-wheels-group": { src: "/logos/safe-wheels-group.png" },
 };
 
 export function siteLogo(siteId: string) {

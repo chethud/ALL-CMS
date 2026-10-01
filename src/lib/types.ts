@@ -47,6 +47,7 @@ export interface InsightContent {
   date: string;
   image: string;
   body: string[];
+  source: string;
 }
 
 export interface TestimonialContent {

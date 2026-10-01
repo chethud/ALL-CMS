@@ -78,8 +78,8 @@ values (
   'cms-media',
   'cms-media',
   true,
-  10485760,
-  array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']
+  41943040,
+  array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif', 'application/pdf']
 )
 on conflict (id) do update
 set public = true,

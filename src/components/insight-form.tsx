@@ -21,6 +21,7 @@ export function InsightForm({ site, initial }: { site: Site; initial: InsightCon
       date: new Date().toISOString().slice(0, 10),
       image: "",
       body: [],
+      source: "",
     },
   );
   const [slugTouched, setSlugTouched] = useState(Boolean(initial?.slug));
@@ -54,11 +55,13 @@ export function InsightForm({ site, initial }: { site: Site; initial: InsightCon
     });
   }
 
+  const blog = site.id === "safe-wheels-group";
+
   return (
     <form onSubmit={onSubmit} className="grid gap-5">
-      <BackLink href="/insights">All insights</BackLink>
+      <BackLink href="/insights">{blog ? "All articles" : "All insights"}</BackLink>
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-[#0B2341]">{existingId ? draft.title || "Insight" : "New insight"}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-[#0B2341]">{existingId ? draft.title || (blog ? "Article" : "Insight") : blog ? "New article" : "New insight"}</h1>
         <p className="mt-1 text-sm text-[#5C6B7A]">Editing {site.name} only.</p>
       </div>
       <section className="card grid gap-4">
@@ -105,6 +108,11 @@ export function InsightForm({ site, initial }: { site: Site; initial: InsightCon
           onChange={(image) => patch({ image })}
           onBusy={(delta) => setBusy((count) => count + delta)}
         />
+        {blog ? (
+          <Field label="Original post" hint="Link back to the post on safewheelsgroup.com.">
+            <input className="input" value={draft.source} onChange={(event) => patch({ source: event.target.value })} />
+          </Field>
+        ) : null}
       </section>
       <SaveBar pending={pending} error={error} saved={saved} disabled={busy > 0} />
     </form>

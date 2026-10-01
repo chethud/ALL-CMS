@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { removeCmsImage, uploadCmsImage } from "@/app/actions";
+import { removeCmsImage, uploadCmsImage, uploadCmsPdf } from "@/app/actions";
 import { fileLabel, resolveMediaUrl } from "@/lib/media";
 
 async function uploadImage(siteId: string, folder: string, file: File) {
@@ -87,6 +87,86 @@ export function SingleImageField({
             setUploading(true);
             onBusy(1);
             void uploadImage(siteId, folder, file)
+              .then(async (nextUrl) => {
+                if (url) await removeStored(siteId, url);
+                onChange(nextUrl);
+              })
+              .catch((uploadError: Error) => setError(uploadError.message))
+              .finally(() => {
+                setUploading(false);
+                onBusy(-1);
+              });
+          }}
+        />
+      </label>
+      {error ? <p className="text-sm text-[#9F2D2D]">{error}</p> : null}
+    </div>
+  );
+}
+
+async function uploadPdf(siteId: string, folder: string, file: File) {
+  const body = new FormData();
+  body.set("file", file);
+  const result = await uploadCmsPdf(siteId, folder, body);
+  if ("error" in result) throw new Error(result.error);
+  return result.url;
+}
+
+export function PdfField({
+  label,
+  url,
+  siteId,
+  folder,
+  onChange,
+  onBusy,
+}: {
+  label: string;
+  url: string;
+  siteId: string;
+  folder: string;
+  onChange: (url: string) => void;
+  onBusy: (delta: number) => void;
+}) {
+  const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  return (
+    <div className="grid gap-2">
+      <p className="text-sm font-medium text-[#16324F]">{label}</p>
+      {url ? (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-[#E4E9ED] px-3 py-2">
+          <a className="truncate text-sm font-medium text-[#0077A8]" href={url} target="_blank" rel="noreferrer">
+            {fileLabel(url)}
+          </a>
+          <button
+            type="button"
+            className="btn btn-danger h-8 shrink-0 px-2"
+            onClick={() => {
+              void removeStored(siteId, url);
+              onChange("");
+            }}
+          >
+            Remove
+          </button>
+        </div>
+      ) : (
+        <p className="rounded-xl border border-dashed border-[#D5DEE6] px-3 py-6 text-sm text-[#5C6B7A]">No PDF yet.</p>
+      )}
+      <label className="btn btn-secondary w-fit cursor-pointer">
+        {uploading ? "Uploading…" : url ? "Replace PDF" : "Upload PDF"}
+        <input
+          type="file"
+          accept="application/pdf,.pdf"
+          className="sr-only"
+          disabled={uploading}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.target.value = "";
+            if (!file) return;
+            setError("");
+            setUploading(true);
+            onBusy(1);
+            void uploadPdf(siteId, folder, file)
               .then(async (nextUrl) => {
                 if (url) await removeStored(siteId, url);
                 onChange(nextUrl);

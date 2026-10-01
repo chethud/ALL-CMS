@@ -93,6 +93,7 @@ export function blankInsight(): InsightContent {
     date,
     image: "",
     body: [],
+    source: "",
   };
 }
 
@@ -176,7 +177,8 @@ export function insightFromContent(raw: unknown): InsightContent {
     category: str(row.category),
     date: str(row.date),
     image: str(row.image),
-    body: strList(row.body),
+    body: strList(row.body).length ? strList(row.body) : strList(row.paragraphs),
+    source: str(row.source) || str(row.href),
   };
 }
 

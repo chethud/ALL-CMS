@@ -3,12 +3,132 @@
 import { useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { saveProject } from "@/app/actions";
-import { GalleryField, SingleImageField } from "@/components/media-fields";
+import { GalleryField, PdfField, SingleImageField } from "@/components/media-fields";
 import { BackLink, ChoiceGroup, Field, SaveBar, StringList, Toggle } from "@/components/ui";
 import { normalizeProject, slugInput, slugify, type ProjectContent } from "@/lib/content";
 import type { Site } from "@/lib/site";
 import { APPROVALS, FILTER_LABELS, FILTERS } from "@/lib/types";
 import { addGalleryVideo, parseYouTubeId, watchUrl } from "@/lib/youtube";
+
+export function NewsletterIssueForm({ site, initial }: { site: Site; initial: ProjectContent | null }) {
+  const router = useRouter();
+  const existingId = initial?.id;
+  const [draft, setDraft] = useState<ProjectContent>(initial ?? blank());
+  const [year, setYear] = useState(issueYear(initial));
+  const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [busy, setBusy] = useState(0);
+  const [pending, startTransition] = useTransition();
+
+  function patch(partial: Partial<ProjectContent>) {
+    setSaved(false);
+    setDraft((current) => ({ ...current, ...partial }));
+  }
+
+  function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    const name = draft.name.trim();
+    const link = draft.brochureUrl.trim();
+    const cover = draft.heroImage.trim();
+    const issue = year.trim();
+    if (!name) {
+      setError("Enter the issue name.");
+      return;
+    }
+    if (!/^20\d{2}$/.test(issue)) {
+      setError("Enter the year, such as 2026.");
+      return;
+    }
+    if (!link) {
+      setError("Upload the PDF.");
+      return;
+    }
+    if (!cover) {
+      setError("Add the cover image.");
+      return;
+    }
+    const next: ProjectContent = {
+      ...draft,
+      name,
+      slug: draft.slug || slugify(name),
+      tagline: issue,
+      brochureUrl: link,
+      heroImage: cover,
+      showOnLayouts: true,
+      location: { ...draft.location, area: issue },
+    };
+    const parsed = normalizeProject(next, existingId ? { existingId } : undefined);
+    if (!parsed.content) {
+      setError(parsed.error);
+      return;
+    }
+    setError("");
+    startTransition(async () => {
+      const result = await saveProject(site.id, parsed.content, existingId);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setSaved(true);
+      if (!existingId && result.id) router.push(`/layouts/${result.id}`);
+      else router.refresh();
+    });
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="grid max-w-xl gap-5">
+      <BackLink href="/layouts">All newsletters</BackLink>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-[#0B2341]">
+          {existingId ? draft.name || "Newsletter" : "New newsletter"}
+        </h1>
+        <p className="mt-1 text-sm text-[#5C6B7A]">A Window Seat issue needs a name, a year, a PDF, and a cover.</p>
+      </div>
+      <section className="card grid gap-4">
+        <Field label="Name">
+          <input
+            className="input"
+            value={draft.name}
+            onChange={(event) => {
+              const name = event.target.value;
+              const found = name.match(/\b(20\d{2})\b/)?.[1];
+              patch({ name, slug: existingId ? draft.slug : slugify(name) });
+              if (found) setYear(found);
+            }}
+          />
+        </Field>
+        <Field label="Year">
+          <input className="input" inputMode="numeric" value={year} onChange={(event) => setYear(event.target.value)} />
+        </Field>
+        <PdfField
+          label="PDF"
+          url={draft.brochureUrl}
+          siteId={site.id}
+          folder={`layouts/${draft.slug || "draft"}`}
+          onChange={(brochureUrl) => patch({ brochureUrl })}
+          onBusy={(delta) => setBusy((count) => count + delta)}
+        />
+        <SingleImageField
+          label="Cover"
+          url={draft.heroImage}
+          domain={site.domain}
+          siteId={site.id}
+          folder={`layouts/${draft.slug || "draft"}`}
+          onChange={(heroImage) => patch({ heroImage })}
+          onBusy={(delta) => setBusy((count) => count + delta)}
+        />
+      </section>
+      <SaveBar pending={pending} error={error} saved={saved} disabled={busy > 0} />
+    </form>
+  );
+}
+
+function issueYear(initial: ProjectContent | null) {
+  const fromTagline = initial?.tagline.match(/\b(20\d{2})\b/)?.[1];
+  const fromArea = initial?.location.area.match(/\b(20\d{2})\b/)?.[1];
+  const fromName = initial?.name.match(/\b(20\d{2})\b/)?.[1];
+  return fromTagline || fromArea || fromName || String(new Date().getFullYear());
+}
 
 export function LayoutForm({ site, initial }: { site: Site; initial: ProjectContent | null }) {
   const router = useRouter();

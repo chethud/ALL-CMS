@@ -366,6 +366,28 @@ export async function uploadCmsImage(siteId: string, folder: string, formData: F
   return { url: supabase.storage.from("cms-media").getPublicUrl(path).data.publicUrl };
 }
 
+export async function uploadCmsPdf(siteId: string, folder: string, formData: FormData) {
+  const { supabase, error: guardError } = await guardSite(siteId);
+  if (!supabase) return { error: guardError ?? "Could not upload." };
+  const prefix = storageFolder(siteId, folder);
+  if (!prefix) return { error: "That upload folder is not allowed." };
+  const file = formData.get("file");
+  if (!(file instanceof File)) return { error: "Choose a PDF file." };
+  const namedPdf = file.name.toLowerCase().endsWith(".pdf");
+  if (file.type !== "application/pdf" && !(namedPdf && (file.type === "" || file.type === "application/octet-stream"))) {
+    return { error: "Choose a PDF file." };
+  }
+  if (file.size > 40 * 1024 * 1024) return { error: "PDFs need to be 40 MB or smaller." };
+  const path = `${prefix}/${crypto.randomUUID()}.pdf`;
+  const { error } = await supabase.storage.from("cms-media").upload(path, Buffer.from(await file.arrayBuffer()), {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: "application/pdf",
+  });
+  if (error) return { error: error.message };
+  return { url: supabase.storage.from("cms-media").getPublicUrl(path).data.publicUrl };
+}
+
 export async function removeCmsImage(siteId: string, url: string) {
   const { supabase, error: guardError } = await guardSite(siteId);
   if (!supabase) return { error: guardError ?? "Could not remove the image." };
