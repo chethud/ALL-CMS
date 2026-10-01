@@ -26,6 +26,7 @@ export function siteSections(siteId: string): StudioSection[] {
   if (siteId === "bs-prashanth") return ["insights"];
   // Layouts = Window Seat newsletters (brochure URL + cover image); Insights = blog.
   if (siteId === "safe-wheels-group") return ["layouts", "insights"];
+  if (siteId === "open-jeep-tours") return ["testimonials"];
   return ALL_SECTIONS;
 }
 
@@ -46,10 +47,11 @@ export function isDomain(value: string) {
   return /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(value);
 }
 
-const SITE_LOGOS: Record<string, { src: string; round?: boolean }> = {
+const SITE_LOGOS: Record<string, { src: string; round?: boolean; bg?: string }> = {
   "alliance-square": { src: "/logos/alliance-square.png" },
   "bs-prashanth": { src: "/logos/bs-prashanth.png", round: true },
   "safe-wheels-group": { src: "/logos/safe-wheels-group.png" },
+  "open-jeep-tours": { src: "/logos/open-jeep-tours.png", bg: "bg-[#ED1D24]" },
 };
 
 export function siteLogo(siteId: string) {

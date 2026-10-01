@@ -107,6 +107,7 @@ export function blankTestimonial(): TestimonialContent {
     designation: "",
     verified: true,
     service: "",
+    rating: 5,
   };
 }
 
@@ -184,6 +185,7 @@ export function insightFromContent(raw: unknown): InsightContent {
 
 export function testimonialFromContent(raw: unknown): TestimonialContent {
   const row = asRecord(raw);
+  const ratingRaw = num(row.rating);
   return {
     id: str(row.id),
     name: str(row.name),
@@ -193,6 +195,7 @@ export function testimonialFromContent(raw: unknown): TestimonialContent {
     designation: str(row.designation),
     verified: flag(row.verified, false),
     service: str(row.service),
+    rating: ratingRaw >= 1 && ratingRaw <= 5 ? Math.round(ratingRaw) : 5,
   };
 }
 
@@ -290,6 +293,8 @@ export function normalizeTestimonial(
   const name = draft.name.trim();
   if (!name) return { content: null, error: "Enter the customer name." };
   if (!draft.quote.trim()) return { content: null, error: "Enter the quote." };
+  const rating = Math.round(num(draft.rating));
+  if (rating < 1 || rating > 5) return { content: null, error: "Rating must be between 1 and 5 stars." };
   const id = options?.existingId || slugify(name);
   if (!id) return { content: null, error: "Enter a name that can be saved as an id." };
   return {
@@ -299,6 +304,7 @@ export function normalizeTestimonial(
       id,
       name,
       quote: draft.quote.trim(),
+      rating,
     },
   };
 }

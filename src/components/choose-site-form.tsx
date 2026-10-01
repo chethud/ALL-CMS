@@ -34,15 +34,23 @@ export function ChooseSiteForm({ sites }: { sites: Site[] }) {
           >
             <span className="flex h-14 w-full items-center justify-center">
               {logo ? (
-                <img
-                  src={logo.src}
-                  alt=""
+                <span
                   className={
-                    logo.round
-                      ? "h-12 w-12 rounded-full object-cover"
-                      : "max-h-12 w-full object-contain"
+                    logo.bg
+                      ? `inline-flex h-12 items-center justify-center rounded-lg px-1.5 ${logo.bg}`
+                      : "inline-flex h-12 w-full items-center justify-center"
                   }
-                />
+                >
+                  <img
+                    src={logo.src}
+                    alt=""
+                    className={
+                      logo.round
+                        ? "h-12 w-12 rounded-full object-cover"
+                        : "max-h-12 w-auto object-contain"
+                    }
+                  />
+                </span>
               ) : (
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0B2341] text-lg font-semibold text-white">
                   {site.name.slice(0, 1).toUpperCase()}

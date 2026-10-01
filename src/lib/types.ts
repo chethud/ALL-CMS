@@ -59,6 +59,7 @@ export interface TestimonialContent {
   designation: string;
   verified: boolean;
   service: string;
+  rating: number;
 }
 
 export interface HomepageContent {

@@ -74,7 +74,9 @@ function Header({ site }: { site: Site | null }) {
           </button>
         </form>
         {site ? (
-          <span className="absolute left-1/2 top-1/2 flex h-10 -translate-x-1/2 -translate-y-1/2 items-center rounded-lg bg-white px-2">
+          <span
+            className={`absolute left-1/2 top-1/2 flex h-10 -translate-x-1/2 -translate-y-1/2 items-center rounded-lg px-2 ${logo?.bg ?? "bg-white"}`}
+          >
             {logo ? (
               <img
                 src={logo.src}

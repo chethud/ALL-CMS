@@ -30,7 +30,10 @@ export default async function TestimonialsPage() {
                 <Link href={`/testimonials/${item.id}`} className="font-semibold text-[#0B2341] hover:text-[#0077A8]">
                   {item.name}
                 </Link>
-                <p className="mt-1 text-sm text-[#5C6B7A]">{item.location}</p>
+                <p className="mt-1 text-sm text-[#5C6B7A]">
+                  {item.location}
+                  {item.rating ? ` · ${item.rating}/5` : ""}
+                </p>
                 <p className="mt-1 line-clamp-2 text-sm text-[#16324F]">{item.quote}</p>
               </div>
               <Link href={`/testimonials/${item.id}`} className="btn btn-secondary">

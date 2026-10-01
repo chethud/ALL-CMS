@@ -69,6 +69,7 @@ export default async function HomePage() {
     })
     .filter((card) => sections.includes(card.section));
   const insightsOnly = sections.length === 1 && sections[0] === "insights";
+  const testimonialsOnly = sections.length === 1 && sections[0] === "testimonials";
   const newsAndBlog = site.id === "safe-wheels-group";
 
   return (
@@ -78,6 +79,8 @@ export default async function HomePage() {
       <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5C6B7A]">
         {insightsOnly
           ? "Articles for this site are edited here."
+          : testimonialsOnly
+            ? "Guest reviews for this site are edited here."
           : newsAndBlog
             ? "Blog posts use Insights. Newsletters use Layouts — set the name, upload the PDF, and set the cover image."
             : "Edits on the next screens are saved for this site only. Other websites can use a different set of screens."}
