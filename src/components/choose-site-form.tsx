@@ -10,7 +10,7 @@ export function ChooseSiteForm({ sites }: { sites: Site[] }) {
   const [openingId, setOpeningId] = useState("");
 
   return (
-    <div className="grid max-w-md gap-3 sm:grid-cols-2">
+    <div className="grid grid-cols-3 gap-3">
       {sites.map((site) => {
         const logo = siteLogo(site.id);
         const opening = pending && openingId === site.id;
@@ -56,7 +56,7 @@ export function ChooseSiteForm({ sites }: { sites: Site[] }) {
           </button>
         );
       })}
-      {error ? <p className="text-sm text-[#9F2D2D] sm:col-span-2">{error}</p> : null}
+      {error ? <p className="text-sm text-[#9F2D2D] col-span-3">{error}</p> : null}
     </div>
   );
 }

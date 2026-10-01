@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clearSelectedSite, signOut } from "@/app/actions";
-import { siteSections, type Site, type StudioSection } from "@/lib/site";
+import { siteLogo, siteSections, type Site, type StudioSection } from "@/lib/site";
 
 const NAV: { href: `/${StudioSection}`; label: string; section: StudioSection }[] = [
   { href: "/layouts", label: "Layouts", section: "layouts" },
@@ -52,10 +52,11 @@ export function Shell({
 
 function Header({ site }: { site: Site | null }) {
   const pathname = usePathname();
+  const logo = site ? siteLogo(site.id) : null;
 
   return (
     <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0B2341] text-white">
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:px-6">
+      <div className="relative mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:px-6">
         {site ? (
           <form action={clearSelectedSite}>
             <button
@@ -72,6 +73,19 @@ function Header({ site }: { site: Site | null }) {
             <span className="block text-base font-semibold">Content studio</span>
           </button>
         </form>
+        {site ? (
+          <span className="absolute left-1/2 top-1/2 flex h-10 -translate-x-1/2 -translate-y-1/2 items-center rounded-lg bg-white px-2">
+            {logo ? (
+              <img
+                src={logo.src}
+                alt={site.name}
+                className={logo.round ? "h-8 w-8 rounded-full object-cover" : "h-8 max-w-[148px] object-contain"}
+              />
+            ) : (
+              <span className="px-1 text-sm font-semibold text-[#0B2341]">{site.name}</span>
+            )}
+          </span>
+        ) : null}
         <div className="ml-auto flex items-center gap-2 text-sm sm:gap-3">
           {site ? (
             <a className="text-[#D5E8F3] hover:text-white" href={`https://${site.domain}`} target="_blank" rel="noreferrer">
